@@ -30,32 +30,6 @@ func setupHosts(ctx context.Context) (host.Host, host.Host) {
 	return ha, hb
 }
 
-func setupServiceRegistrar(
-	ctx context.Context,
-	h host.Host,
-) grpc.ServiceRegistrar {
-	// listener
-	l := p2pgrpc.NewListener(ctx, h, pid)
-
-	// serve
-	s := grpc.NewServer(p2pgrpc.WithP2PCredentials())
-	go s.Serve(l)
-
-	return s
-}
-
-func setupClientConn(
-	ctx context.Context,
-	h host.Host,
-	peerID peer.ID,
-) (*grpc.ClientConn, error) {
-	return grpc.Dial(
-		peerID.String(),
-		grpc.WithInsecure(),
-		p2pgrpc.WithP2PDialer(ctx, h, pid),
-	)
-}
-
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
@@ -64,22 +38,38 @@ func main() {
 	defer cancel()
 
 	// hosts
-	ha, hb := setupHosts(ctx)
+	hs, hc := setupHosts(ctx)
 
-	// service
-	sr := setupServiceRegistrar(ctx, ha)
-	proto.RegisterGreeterServer(sr, &greeter.Server{})
+	// server
+	{
+		// grpc server & register greeter
+		s := grpc.NewServer(p2pgrpc.WithP2PCredentials())
+		proto.RegisterGreeterServer(s, &greeter.Server{})
+
+		// serve grpc server over libp2p host
+		l := p2pgrpc.NewListener(ctx, hs, pid)
+		go s.Serve(l)
+	}
 
 	// client
-	conn, _ := setupClientConn(ctx, hb, ha.ID())
-	defer conn.Close()
-	c := proto.NewGreeterClient(conn)
+	{
+		// client conn
+		conn, _ := grpc.Dial(
+			hs.ID().String(),
+			grpc.WithInsecure(),
+			p2pgrpc.WithP2PDialer(ctx, hc, pid),
+		)
+		defer conn.Close()
 
-	// SayHello
-	res, _ := c.SayHello(ctx, &proto.HelloRequest{
-		Name: "Alice",
-	})
+		// client
+		c := proto.NewGreeterClient(conn)
 
-	// print result
-	log.Println(res.Message)
+		// SayHello
+		res, _ := c.SayHello(ctx, &proto.HelloRequest{
+			Name: "Alice",
+		})
+
+		// print result
+		log.Println(res.Message)
+	}
 }
