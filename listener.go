@@ -20,7 +20,7 @@ type listener struct {
 	cancel   context.CancelFunc
 }
 
-// NewListener ...
+// NewListener turns a libp2p host into a net listener.
 func NewListener(
 	ctx context.Context,
 	h host.Host,

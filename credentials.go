@@ -10,20 +10,27 @@ import (
 	"google.golang.org/grpc/credentials"
 )
 
-var _ credentials.TransportCredentials = (*creds)(nil)
+var _ credentials.TransportCredentials = (*p2pCredentials)(nil)
 
-type creds struct{}
+type p2pCredentials struct{}
 
-// WithP2PCredentials ...
+// WithP2PCredentials exposes the libp2p stream to the grpc service via a custom
+// AuthInfo.
 func WithP2PCredentials() grpc.ServerOption {
-	return grpc.Creds(creds{})
+	return grpc.Creds(p2pCredentials{})
 }
 
-func (f creds) ClientHandshake(ctx context.Context, _ string, c net.Conn) (net.Conn, credentials.AuthInfo, error) {
+func (pc p2pCredentials) ClientHandshake(
+	_ context.Context,
+	_ string,
+	c net.Conn,
+) (net.Conn, credentials.AuthInfo, error) {
 	return c, nil, nil
 }
 
-func (f creds) ServerHandshake(c net.Conn) (net.Conn, credentials.AuthInfo, error) {
+func (pc p2pCredentials) ServerHandshake(
+	c net.Conn,
+) (net.Conn, credentials.AuthInfo, error) {
 	s, ok := c.(network.Stream)
 	if !ok {
 		return nil, nil, errors.New("Not a libp2p Stream")
@@ -35,7 +42,7 @@ func (f creds) ServerHandshake(c net.Conn) (net.Conn, credentials.AuthInfo, erro
 	return c, i, nil
 }
 
-func (f creds) Info() credentials.ProtocolInfo {
+func (pc p2pCredentials) Info() credentials.ProtocolInfo {
 	return credentials.ProtocolInfo{
 		ProtocolVersion:  "",
 		SecurityProtocol: "",
@@ -44,10 +51,10 @@ func (f creds) Info() credentials.ProtocolInfo {
 	}
 }
 
-func (f creds) Clone() credentials.TransportCredentials {
-	return creds{}
+func (pc p2pCredentials) Clone() credentials.TransportCredentials {
+	return p2pCredentials{}
 }
 
-func (f creds) OverrideServerName(string) error {
+func (pc p2pCredentials) OverrideServerName(string) error {
 	return nil
 }

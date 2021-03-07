@@ -10,18 +10,18 @@ import (
 
 var _ net.Conn = (*Conn)(nil)
 
-// Conn ...
+// Conn as libp2p stream
 type Conn struct {
 	network.Stream
 }
 
-// LocalAddr ...
+// LocalAddr shows local peer net addr
 func (c Conn) LocalAddr() net.Addr {
 	a := c.Stream.Conn().LocalMultiaddr()
 	return toNetAddr(a)
 }
 
-// RemoteAddr ...
+// RemoteAddr shows remote peer net addr
 func (c Conn) RemoteAddr() net.Addr {
 	a := c.Stream.Conn().RemoteMultiaddr()
 	return toNetAddr(a)

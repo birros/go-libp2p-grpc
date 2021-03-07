@@ -11,7 +11,7 @@ import (
 
 var _ credentials.AuthInfo = (*AuthInfo)(nil)
 
-// AuthInfo ...
+// AuthInfo embed original libp2p stream
 type AuthInfo struct {
 	Stream network.Stream
 }
@@ -21,7 +21,7 @@ func (ai AuthInfo) AuthType() string {
 	return ""
 }
 
-// AuthInfoFromContext ...
+// AuthInfoFromContext extracts p2p AuthInfo from ctx
 func AuthInfoFromContext(ctx context.Context) (AuthInfo, bool) {
 	p, ok := grpcpeer.FromContext(ctx)
 	if !ok {
@@ -32,7 +32,7 @@ func AuthInfoFromContext(ctx context.Context) (AuthInfo, bool) {
 	return ai, ok
 }
 
-// RemotePeerFromContext ...
+// RemotePeerFromContext extracts remote peer from ctx
 func RemotePeerFromContext(ctx context.Context) (peer.ID, bool) {
 	ai, ok := AuthInfoFromContext(ctx)
 	if !ok {
