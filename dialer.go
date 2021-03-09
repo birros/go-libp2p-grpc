@@ -2,10 +2,12 @@ package p2pgrpc
 
 import (
 	"context"
+	"errors"
 	"net"
 	"time"
 
 	"github.com/libp2p/go-libp2p-core/host"
+	"github.com/libp2p/go-libp2p-core/network"
 	"github.com/libp2p/go-libp2p-core/peer"
 	"github.com/libp2p/go-libp2p-core/protocol"
 	"google.golang.org/grpc"
@@ -28,6 +30,10 @@ func WithP2PDialer(
 		peerID, err := peer.IDB58Decode(peerIDStr)
 		if err != nil {
 			return nil, err
+		}
+
+		if h.Network().Connectedness(peerID) != network.Connected {
+			return nil, errors.New("Not connected to peer")
 		}
 
 		// ctx
