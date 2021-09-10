@@ -27,7 +27,7 @@ func WithP2PDialer(
 		timeout time.Duration,
 	) (net.Conn, error) {
 		// peerID
-		peerID, err := peer.IDB58Decode(peerIDStr)
+		peerID, err := peer.Decode(peerIDStr)
 		if err != nil {
 			return nil, err
 		}
