@@ -5,7 +5,7 @@ import (
 	"errors"
 	"net"
 
-	"github.com/libp2p/go-libp2p-core/network"
+	"github.com/libp2p/go-libp2p/core/network"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
@@ -33,7 +33,7 @@ func (pc p2pCredentials) ServerHandshake(
 ) (net.Conn, credentials.AuthInfo, error) {
 	s, ok := c.(network.Stream)
 	if !ok {
-		return nil, nil, errors.New("Not a libp2p Stream")
+		return nil, nil, errors.New("not a libp2p stream")
 	}
 
 	i := AuthInfo{

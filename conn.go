@@ -3,7 +3,7 @@ package p2pgrpc
 import (
 	"net"
 
-	"github.com/libp2p/go-libp2p-core/network"
+	"github.com/libp2p/go-libp2p/core/network"
 	"github.com/multiformats/go-multiaddr"
 	mnet "github.com/multiformats/go-multiaddr/net"
 )

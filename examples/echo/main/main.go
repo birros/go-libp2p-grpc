@@ -8,18 +8,19 @@ import (
 	"github.com/birros/go-libp2p-grpc/examples/echo/greeter"
 	"github.com/birros/go-libp2p-grpc/examples/echo/proto"
 	"github.com/libp2p/go-libp2p"
-	"github.com/libp2p/go-libp2p-core/host"
-	"github.com/libp2p/go-libp2p-core/peer"
-	"github.com/libp2p/go-libp2p-core/protocol"
+	"github.com/libp2p/go-libp2p/core/host"
+	"github.com/libp2p/go-libp2p/core/peer"
+	"github.com/libp2p/go-libp2p/core/protocol"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 const pid protocol.ID = "/grpc/1.0.0"
 
 func setupHosts(ctx context.Context) (host.Host, host.Host) {
 	// hosts
-	ha, _ := libp2p.New(ctx, libp2p.ListenAddrStrings("/ip4/127.0.0.1/tcp/0"))
-	hb, _ := libp2p.New(ctx, libp2p.NoListenAddrs)
+	ha, _ := libp2p.New(libp2p.ListenAddrStrings("/ip4/127.0.0.1/tcp/0"))
+	hb, _ := libp2p.New(libp2p.NoListenAddrs)
 
 	// connect
 	hb.Connect(ctx, peer.AddrInfo{
@@ -39,6 +40,8 @@ func main() {
 
 	// hosts
 	hs, hc := setupHosts(ctx)
+	defer hs.Close()
+	defer hc.Close()
 
 	// server
 	{
@@ -56,8 +59,8 @@ func main() {
 		// client conn
 		conn, _ := grpc.Dial(
 			hs.ID().String(),
-			grpc.WithInsecure(),
-			p2pgrpc.WithP2PDialer(ctx, hc, pid),
+			grpc.WithTransportCredentials(insecure.NewCredentials()),
+			p2pgrpc.WithP2PDialer(hc, pid),
 		)
 		defer conn.Close()
 

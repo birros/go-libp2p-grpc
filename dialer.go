@@ -4,12 +4,11 @@ import (
 	"context"
 	"errors"
 	"net"
-	"time"
 
-	"github.com/libp2p/go-libp2p-core/host"
-	"github.com/libp2p/go-libp2p-core/network"
-	"github.com/libp2p/go-libp2p-core/peer"
-	"github.com/libp2p/go-libp2p-core/protocol"
+	"github.com/libp2p/go-libp2p/core/host"
+	"github.com/libp2p/go-libp2p/core/network"
+	"github.com/libp2p/go-libp2p/core/peer"
+	"github.com/libp2p/go-libp2p/core/protocol"
 	"google.golang.org/grpc"
 )
 
@@ -17,14 +16,10 @@ import (
 // create a connection. The dialer does not connect the current host to the
 // target host, this must be checked before establishing a connection. It just
 // wraps a gRPC connection in a libp2p stream.
-func WithP2PDialer(
-	ctx context.Context,
-	h host.Host,
-	pid protocol.ID,
-) grpc.DialOption {
-	return grpc.WithDialer(func(
+func WithP2PDialer(h host.Host, pid protocol.ID) grpc.DialOption {
+	return grpc.WithContextDialer(func(
+		ctx context.Context,
 		peerIDStr string,
-		timeout time.Duration,
 	) (net.Conn, error) {
 		// peerID
 		peerID, err := peer.Decode(peerIDStr)
@@ -33,12 +28,8 @@ func WithP2PDialer(
 		}
 
 		if h.Network().Connectedness(peerID) != network.Connected {
-			return nil, errors.New("Not connected to peer")
+			return nil, errors.New("not connected to peer")
 		}
-
-		// ctx
-		ctx, ctxCancel := context.WithTimeout(ctx, timeout)
-		defer ctxCancel()
 
 		// stream
 		stream, err := h.NewStream(ctx, peerID, pid)

@@ -3,8 +3,8 @@ package p2pgrpc
 import (
 	"context"
 
-	"github.com/libp2p/go-libp2p-core/network"
-	"github.com/libp2p/go-libp2p-core/peer"
+	"github.com/libp2p/go-libp2p/core/network"
+	"github.com/libp2p/go-libp2p/core/peer"
 	"google.golang.org/grpc/credentials"
 	grpcpeer "google.golang.org/grpc/peer"
 )
