@@ -21,7 +21,7 @@ func (s *Server) SayHello(
 ) (*proto.HelloResponse, error) {
 	peerID, ok := p2pgrpc.RemotePeerFromContext(ctx)
 	if !ok {
-		return nil, errors.New("No AuthInfo in context")
+		return nil, errors.New("no AuthInfo in context")
 	}
 
 	log.Println("Request from: " + peerID.String())
