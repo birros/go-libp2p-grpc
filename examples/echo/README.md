@@ -1,17 +1,15 @@
 # Echo example
 
-Example of use of `go-libp2p-grpc`.
+Usage example of `go-libp2p-grpc`.
 
 ## Run
 
 ```shell
-$ make
+$ go run ./cmd/main..go
 ```
 
 ## Generate protobuf files
 
 ```shell
-$ asdf plugin add buf https://github.com/truepay/asdf-buf.git
-$ asdf install
-$ make generate
+$ buf generate
 ```

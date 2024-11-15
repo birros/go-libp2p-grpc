@@ -6,10 +6,10 @@ import (
 	"log"
 
 	p2pgrpc "github.com/birros/go-libp2p-grpc"
-	"github.com/birros/go-libp2p-grpc/examples/echo/proto"
+	greeterv1 "github.com/birros/go-libp2p-grpc/examples/echo/gen/greeter/v1"
 )
 
-var _ proto.GreeterServer = (*Server)(nil)
+var _ greeterv1.GreeterServiceServer = (*Server)(nil)
 
 // Server ...
 type Server struct{}
@@ -17,8 +17,8 @@ type Server struct{}
 // SayHello ...
 func (s *Server) SayHello(
 	ctx context.Context,
-	req *proto.HelloRequest,
-) (*proto.HelloResponse, error) {
+	req *greeterv1.SayHelloRequest,
+) (*greeterv1.SayHelloResponse, error) {
 	peerID, ok := p2pgrpc.RemotePeerFromContext(ctx)
 	if !ok {
 		return nil, errors.New("no AuthInfo in context")
@@ -26,7 +26,7 @@ func (s *Server) SayHello(
 
 	log.Println("Request from: " + peerID.String())
 
-	res := &proto.HelloResponse{
+	res := &greeterv1.SayHelloResponse{
 		Message: "Hello " + req.Name + "!",
 	}
 	return res, nil
