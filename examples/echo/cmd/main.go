@@ -5,8 +5,8 @@ import (
 	"log"
 
 	p2pgrpc "github.com/birros/go-libp2p-grpc"
+	greeterv1 "github.com/birros/go-libp2p-grpc/examples/echo/gen/greeter/v1"
 	"github.com/birros/go-libp2p-grpc/examples/echo/greeter"
-	"github.com/birros/go-libp2p-grpc/examples/echo/proto"
 	"github.com/libp2p/go-libp2p"
 	"github.com/libp2p/go-libp2p/core/host"
 	"github.com/libp2p/go-libp2p/core/peer"
@@ -47,7 +47,7 @@ func main() {
 	{
 		// grpc server & register greeter
 		s := grpc.NewServer(p2pgrpc.WithP2PCredentials())
-		proto.RegisterGreeterServer(s, &greeter.Server{})
+		greeterv1.RegisterGreeterServiceServer(s, &greeter.Server{})
 
 		// serve grpc server over libp2p host
 		l := p2pgrpc.NewListener(ctx, hs, pid)
@@ -65,10 +65,10 @@ func main() {
 		defer conn.Close()
 
 		// client
-		c := proto.NewGreeterClient(conn)
+		c := greeterv1.NewGreeterServiceClient(conn)
 
 		// SayHello
-		res, _ := c.SayHello(ctx, &proto.HelloRequest{
+		res, _ := c.SayHello(ctx, &greeterv1.SayHelloRequest{
 			Name: "Alice",
 		})
 
